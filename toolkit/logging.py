@@ -39,6 +39,7 @@ class TensorBoardLogger(EmptyLogger):
             config: Configuration dictionary to be logged
         """
         super().__init__(*args, **kwargs)
+
         self.log_dir = log_dir or f"runs/tensorboard_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
         self.config = config
         self._writer = None
@@ -166,6 +167,7 @@ def create_logger(logging_config: LoggingConfig, all_config: OrderedDict):
         run_name = logging_config.run_name
         return WandbLogger(project=project_name, run_name=run_name, config=all_config)
     elif logging_config.use_tensorboard:  # Add this condition
+        print(">>>> Using Tensorboard <<<<")
         return TensorBoardLogger(log_dir=logging_config.tensorboard_log_dir, config=all_config)
     else:
         return EmptyLogger()
