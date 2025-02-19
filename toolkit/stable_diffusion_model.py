@@ -937,9 +937,6 @@ class StableDiffusion:
         else:
             self.unet: 'UNet2DConditionModel' = pipe.unet
 
-        if hasattr(self.unet, 'module'):
-            self.unet = self.unet.module
-
         self.vae: 'AutoencoderKL' = pipe.vae.to(self.vae_device_torch, dtype=self.vae_torch_dtype)
         self.vae.eval()
         self.vae.requires_grad_(False)
@@ -949,7 +946,11 @@ class StableDiffusion:
         self.unet.requires_grad_(False)
         self.unet.eval()
 
-        # load any loras we have
+        if hasattr(self.unet, 'module'):
+            self.unet = self.unet.module
+
+
+    # load any loras we have
         if self.model_config.lora_path is not None and not self.is_flux and not self.is_lumina2:
             pipe.load_lora_weights(self.model_config.lora_path, adapter_name="lora1")
             pipe.fuse_lora()
@@ -1277,6 +1278,9 @@ class StableDiffusion:
             with torch.no_grad():
                 if network is not None:
                     assert network.is_active
+
+                if hasattr(self.unet, 'module'):
+                    self.unet = self.unet.module
 
                 for i in tqdm(range(len(image_configs)), desc=f"Generating Images", leave=False):
                     gen_config = image_configs[i]
