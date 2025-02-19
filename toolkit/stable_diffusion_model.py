@@ -936,6 +936,10 @@ class StableDiffusion:
             self.unet_unwrapped = pipe.transformer
         else:
             self.unet: 'UNet2DConditionModel' = pipe.unet
+
+        if hasattr(self.unet, 'module'):
+            self.unet = self.unet.module
+
         self.vae: 'AutoencoderKL' = pipe.vae.to(self.vae_device_torch, dtype=self.vae_torch_dtype)
         self.vae.eval()
         self.vae.requires_grad_(False)
@@ -2000,7 +2004,7 @@ class StableDiffusion:
             else:
                 if self.unet.device != self.device_torch:
                     self.unet.to(self.device_torch)
-                if self.unet.module.dtype != self.torch_dtype:
+                if self.unet.dtype != self.torch_dtype:
                     self.unet = self.unet.to(dtype=self.torch_dtype)
                 if self.is_flux:
                     with torch.no_grad():
