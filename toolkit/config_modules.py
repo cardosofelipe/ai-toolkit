@@ -1,7 +1,7 @@
 import os
+import random
 import time
 from typing import List, Optional, Literal, Union, TYPE_CHECKING, Dict
-import random
 
 import torch
 
@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 else:
     EmptyLogger = None
 
+
 class SaveConfig:
     def __init__(self, **kwargs):
         self.save_every: int = kwargs.get('save_every', 1000)
@@ -29,13 +30,16 @@ class SaveConfig:
         self.hf_repo_id: Optional[str] = kwargs.get("hf_repo_id", None)
         self.hf_private: Optional[str] = kwargs.get("hf_private", False)
 
+
 class LoggingConfig:
     def __init__(self, **kwargs):
         self.log_every: int = kwargs.get('log_every', 100)
         self.verbose: bool = kwargs.get('verbose', False)
         self.use_wandb: bool = kwargs.get('use_wandb', False)
+        self.use_tensorboard: bool = kwargs.get('use_tensorboard', False)
         self.project_name: str = kwargs.get('project_name', 'ai-toolkit')
         self.run_name: str = kwargs.get('run_name', None)
+        self.tensorboard_log_dir: Optional[str] = None
 
 
 class SampleConfig:
@@ -206,17 +210,17 @@ class AdapterConfig:
         self.ilora_down: bool = kwargs.get('ilora_down', True)
         self.ilora_mid: bool = kwargs.get('ilora_mid', True)
         self.ilora_up: bool = kwargs.get('ilora_up', True)
-        
+
         self.pixtral_max_image_size: int = kwargs.get('pixtral_max_image_size', 512)
         self.pixtral_random_image_size: int = kwargs.get('pixtral_random_image_size', False)
 
         self.flux_only_double: bool = kwargs.get('flux_only_double', False)
-        
+
         # train and use a conv layer to pool the embedding
         self.conv_pooling: bool = kwargs.get('conv_pooling', False)
         self.conv_pooling_stacks: int = kwargs.get('conv_pooling_stacks', 1)
         self.sparse_autoencoder_dim: Optional[int] = kwargs.get('sparse_autoencoder_dim', None)
-        
+
         # for llm adapter
         self.num_cloned_blocks: int = kwargs.get('num_cloned_blocks', 0)
         self.quantize_llm: bool = kwargs.get('quantize_llm', False)
@@ -404,14 +408,14 @@ class TrainConfig:
         self.paramiter_swapping_factor = kwargs.get('paramiter_swapping_factor', 0.1)
         # bypass the guidance embedding for training. For open flux with guidance embedding
         self.bypass_guidance_embedding = kwargs.get('bypass_guidance_embedding', False)
-        
+
         # diffusion feature extractor
         self.diffusion_feature_extractor_path = kwargs.get('diffusion_feature_extractor_path', None)
         self.diffusion_feature_extractor_weight = kwargs.get('diffusion_feature_extractor_weight', 1.0)
-        
+
         # optimal noise pairing
         self.optimal_noise_pairing_samples = kwargs.get('optimal_noise_pairing_samples', 1)
-        
+
         # forces same noise for the same image at a given size.
         self.force_consistent_noise = kwargs.get('force_consistent_noise', False)
 
@@ -485,13 +489,13 @@ class ModelConfig:
         self.ignore_if_contains: Optional[List[str]] = kwargs.get("ignore_if_contains", None)
         self.only_if_contains: Optional[List[str]] = kwargs.get("only_if_contains", None)
         self.quantize_kwargs = kwargs.get("quantize_kwargs", {})
-        
+
         # splits the model over the available gpus WIP
         self.split_model_over_gpus = kwargs.get("split_model_over_gpus", False)
         if self.split_model_over_gpus and not self.is_flux:
             raise ValueError("split_model_over_gpus is only supported with flux models currently")
         self.split_model_other_module_param_count_scale = kwargs.get("split_model_other_module_param_count_scale", 0.3)
-        
+
         self.te_name_or_path = kwargs.get("te_name_or_path", None)
 
 
@@ -501,7 +505,7 @@ class EMAConfig:
         self.ema_decay: float = kwargs.get('ema_decay', 0.999)
         # feeds back the decay difference into the parameter
         self.use_feedback: bool = kwargs.get('use_feedback', False)
-        
+
         # every update, the params are multiplied by this amount
         # only use for things without a bias like lora
         # similar to a decay in an optimizer but the opposite
@@ -931,18 +935,18 @@ class GenerateImageConfig:
     ):
         # this is called after prompt embeds are encoded. We can override them in the future here
         pass
-    
+
     def log_image(self, image, count: int = 0, max_count=0):
         if self.logger is None:
             return
 
         self.logger.log_image(image, count, self.prompt)
-        
-        
+
+
 def validate_configs(
-    train_config: TrainConfig,
-    model_config: ModelConfig,
-    save_config: SaveConfig,
+        train_config: TrainConfig,
+        model_config: ModelConfig,
+        save_config: SaveConfig,
 ):
     if model_config.is_flux:
         if save_config.save_format != 'diffusers':
