@@ -2000,7 +2000,7 @@ class StableDiffusion:
             else:
                 if self.unet.device != self.device_torch:
                     self.unet.to(self.device_torch)
-                if self.unet.dtype != self.torch_dtype:
+                if self.unet.module.dtype != self.torch_dtype:
                     self.unet = self.unet.to(dtype=self.torch_dtype)
                 if self.is_flux:
                     with torch.no_grad():

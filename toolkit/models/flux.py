@@ -18,6 +18,10 @@ def guidance_embed_bypass_forward(self, timestep, guidance, pooled_projection):
 
 
 def bypass_flux_guidance(transformer):
+    # If transformer is wrapped in DistributedDataParallel, get the underlying model
+    if hasattr(transformer, 'module'):
+        transformer = transformer.module
+
     if hasattr(transformer.time_text_embed, '_bfg_orig_forward'):
         return
     # dont bypass if it doesnt have the guidance embedding
