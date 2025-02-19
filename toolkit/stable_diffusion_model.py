@@ -2780,6 +2780,9 @@ class StableDiffusion:
         return trainable_parameters
 
     def save_device_state(self):
+        if hasattr(self.unet, 'module'):
+            self.unet = self.unet.module
+
         # saves the current device state for all modules
         # this is useful for when we want to alter the state and restore it
         if self.is_lumina2:
