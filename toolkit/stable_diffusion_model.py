@@ -2006,6 +2006,9 @@ class StableDiffusion:
                 else:
                     noise_pred = noise_pred
             else:
+                if hasattr(self.unet, 'module'):
+                    self.unet = self.unet.module
+
                 if self.unet.device != self.device_torch:
                     self.unet.to(self.device_torch)
                 if self.unet.dtype != self.torch_dtype:
