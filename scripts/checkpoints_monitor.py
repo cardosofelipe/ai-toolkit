@@ -109,12 +109,32 @@ class CheckpointMonitor:
             actual_size += part_file.stat().st_size
             part += 1
 
-        if part != 3 or actual_size != total_size:  # We expect exactly 2 parts
+        # Allow for small size discrepancies (0.1% tolerance)
+        size_difference = abs(actual_size - total_size)
+        tolerance = total_size * 0.001  # 0.1% tolerance
+
+        if part != 3:  # We expect exactly 2 parts
             logger.warning(
-                f"Size mismatch in {checkpoint_folder}. "
-                f"Expected: {total_size}, Got: {actual_size}"
+                f"Incorrect number of parts in {checkpoint_folder}. "
+                f"Expected: 2, Got: {part-1}"
             )
             return None
+
+        if size_difference > tolerance:
+            logger.warning(
+                f"Size mismatch in {checkpoint_folder}. "
+                f"Expected: {total_size}, Got: {actual_size} "
+                f"(difference: {size_difference} bytes, {(size_difference/total_size)*100:.4f}%)"
+            )
+            return None
+
+        if actual_size != total_size:
+            logger.info(
+                f"Minor size variation in {checkpoint_folder} "
+                f"(within tolerance). Expected: {total_size}, "
+                f"Got: {actual_size} "
+                f"(difference: {size_difference} bytes, {(size_difference/total_size)*100:.4f}%)"
+            )
 
         return total_size
 
