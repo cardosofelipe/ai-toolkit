@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from typing import OrderedDict, Optional
 from PIL import Image
@@ -44,6 +45,10 @@ class TensorBoardLogger(EmptyLogger):
         self.config = config
         self._writer = None
         self._current_step = 0
+        os.makedirs(self.log_dir, exist_ok=True)
+        print(
+            f"TensorBoard logging enabled. Logs will be saved to {self.log_dir}"
+        )
 
     def start(self):
         try:
