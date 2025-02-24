@@ -946,8 +946,8 @@ class StableDiffusion:
         self.unet.requires_grad_(False)
         self.unet.eval()
 
-        # if hasattr(self.unet, 'module'):
-        #     self.unet = self.unet.module
+        if hasattr(self.unet, 'module'):
+            self.unet = self.unet.module
 
 
     # load any loras we have
@@ -1279,8 +1279,8 @@ class StableDiffusion:
                 if network is not None:
                     assert network.is_active
 
-                # if hasattr(self.unet, 'module'):
-                #     self.unet = self.unet.module
+                if hasattr(self.unet, 'module'):
+                    self.unet = self.unet.module
 
                 for i in tqdm(range(len(image_configs)), desc=f"Generating Images", leave=False):
                     gen_config = image_configs[i]
@@ -2006,8 +2006,8 @@ class StableDiffusion:
                 else:
                     noise_pred = noise_pred
             else:
-                # if hasattr(self.unet, 'module'):
-                #     self.unet = self.unet.module
+                if hasattr(self.unet, 'module'):
+                    self.unet = self.unet.module
 
                 if self.unet.device != self.device_torch:
                     self.unet.to(self.device_torch)
@@ -2780,8 +2780,8 @@ class StableDiffusion:
         return trainable_parameters
 
     def save_device_state(self):
-        # if hasattr(self.unet, 'module'):
-        #     self.unet = self.unet.module
+        if hasattr(self.unet, 'module'):
+            self.unet = self.unet.module
 
         # saves the current device state for all modules
         # this is useful for when we want to alter the state and restore it
